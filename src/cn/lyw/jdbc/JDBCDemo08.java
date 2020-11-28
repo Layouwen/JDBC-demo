@@ -1,6 +1,7 @@
 package cn.lyw.jdbc;
 
 import cn.lyw.domain.Student;
+import cn.lyw.util.JDBCUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import java.util.List;
 
 public class JDBCDemo08 {
   public static void main(String[] args) {
-    List<Student> list = new JDBCDemo08().findAll();
+    List<Student> list = new JDBCDemo08().findAll2();
     System.out.println(list);
     System.out.println(list.size());
     for (Student stu : list) {
@@ -82,6 +83,52 @@ public class JDBCDemo08 {
           e.printStackTrace();
         }
       }
+    }
+    return list;
+  }
+
+  /**
+   * 演示JDBC的工具类
+   *
+   * @return
+   */
+  public List<Student> findAll2() {
+    Connection conn = null;
+    Statement stmt = null;
+    ResultSet rs = null;
+    List<Student> list = null;
+    try {
+      // 注册驱动
+      // 获取连接
+      conn = JDBCUtils.getConnection();
+      // 定义sql
+      String sql = "SELECT * FROM student";
+      System.out.println(conn);
+      // 创建sql执行对象
+      stmt = conn.createStatement();
+      // 执行sql
+      rs = stmt.executeQuery(sql);
+      // 处理结果
+      Student student = null;
+      list = new ArrayList<Student>();
+      while (rs.next()) {
+        // 获取数据
+        int id = rs.getInt("id");
+        String name = rs.getString("name");
+        int age = rs.getInt("age");
+        // 创建Student对象
+        student = new Student();
+        student.setId(id);
+        student.setName(name);
+        student.setAge(age);
+        // 装载集合
+        list.add(student);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } finally {
+      // 释放资源
+      JDBCUtils.close(rs, stmt, conn);
     }
     return list;
   }
